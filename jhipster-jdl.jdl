@@ -1,0 +1,14 @@
+
+entity TicketsLog {
+	channel String required
+    idBoard String required
+    idList String  required
+    idCard String  required    
+	action String  required
+	timestamp Instant    
+}
+
+paginate TicketsLog with pagination
+
+service all with serviceImpl
+
