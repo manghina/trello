@@ -1,13 +1,11 @@
 package com.trello_server.webclosure.web.rest;
 
-import com.trello_server.webclosure.config.custom.EmailConfiguration;
 import com.trello_server.webclosure.domain.TicketsLog;
 import com.trello_server.webclosure.repository.TicketsLogRepository;
 import com.trello_server.webclosure.service.TicketsLogService;
 import com.trello_server.webclosure.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,8 +35,6 @@ public class TicketsLogResource {
     private final Logger log = LoggerFactory.getLogger(TicketsLogResource.class);
 
     private static final String ENTITY_NAME = "ticketsLog";
-    @Autowired
-    private EmailConfiguration emailConfiguration;
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
@@ -154,14 +150,6 @@ public class TicketsLogResource {
         Page<TicketsLog> page = ticketsLogService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
-
-    @GetMapping("/read")
-    public ResponseEntity<Boolean> read(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
-        log.debug("REST request to read emailConfiguration box");
-        emailConfiguration.downloadEmails();
-        //HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().body(true);
     }
 
     /**

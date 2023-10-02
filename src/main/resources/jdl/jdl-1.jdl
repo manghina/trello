@@ -1,0 +1,11 @@
+
+entity Email {
+    subject String required
+    body String  required
+    from String required
+	timestamp Instant
+}
+
+paginate Email with pagination
+
+

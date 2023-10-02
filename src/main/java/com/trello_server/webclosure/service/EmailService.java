@@ -1,15 +1,22 @@
-package com.trello_server.webclosure.config.custom;
+package com.trello_server.webclosure.service;
 
+import com.trello_server.webclosure.domain.Email;
+import com.trello_server.webclosure.repository.EmailRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
 import javax.mail.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 @Service
-public class EmailConfiguration {
+public class EmailService {
+    @Autowired
+    EmailRepository repository;
 
     @Value("${spring.application.email.protocol}")
     private String emailProtocol;
@@ -49,10 +56,16 @@ public class EmailConfiguration {
         return body;
     }
 
-    public void downloadEmails() {
+    public void save(List<Email> emails) {
+        for(Email email : emails) {
+            repository.save((email));
+        }
+    }
+
+    public List<Email> downloadEmails() {
         Properties properties = getServerProperties();
         Session session = Session.getDefaultInstance(properties);
-
+        List<Email> emails = new ArrayList<>();
         try {
             // connects to the message store
             Store store = session.getStore(emailProtocol);
@@ -66,6 +79,7 @@ public class EmailConfiguration {
             Message[] messages = folderInbox.getMessages();
 
             for (int i = 0; i < messages.length; i++) {
+                Email email = new Email();
                 Message msg = messages[i];
                 Address[] fromAddress = msg.getFrom();
                 String from = fromAddress[0].toString();
@@ -75,6 +89,7 @@ public class EmailConfiguration {
                 String ccList = parseAddresses(msg
                     .getRecipients(Message.RecipientType.CC));
                 String sentDate = msg.getSentDate().toString();
+                Istant date = Instant.parse(sentDate);
 
                 String contentType = msg.getContentType();
                 String messageContent = "";
@@ -93,16 +108,19 @@ public class EmailConfiguration {
                 if (contentType.contains("multipart")) {
                     messageContent = getMessageContent( msg);
                 }
+                email.setFrom(from);
+                email.setSubject(subject);
+                email.setBody(messageContent);
+               // email.setTimestamp(date);
 
                 // print out details of each message
                 System.out.println("Message #" + (i + 1) + ":");
                 System.out.println("\t Type: " + contentType);
                 System.out.println("\t From: " + from);
-                System.out.println("\t To: " + toList);
-                System.out.println("\t CC: " + ccList);
                 System.out.println("\t Subject: " + subject);
                 System.out.println("\t Sent Date: " + sentDate);
                 System.out.println("\t Message: " + messageContent);
+                emails.add(email);
             }
 
             // disconnect
@@ -117,6 +135,7 @@ public class EmailConfiguration {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return emails;
     }
 
     private Properties getServerProperties() {

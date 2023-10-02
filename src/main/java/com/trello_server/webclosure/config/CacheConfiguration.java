@@ -49,6 +49,7 @@ public class CacheConfiguration {
             createCache(cm, com.trello_server.webclosure.domain.Authority.class.getName());
             createCache(cm, com.trello_server.webclosure.domain.User.class.getName() + ".authorities");
             createCache(cm, com.trello_server.webclosure.domain.TicketsLog.class.getName());
+            createCache(cm, com.trello_server.webclosure.domain.Email.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }
